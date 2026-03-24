@@ -15,7 +15,7 @@
 #include <chrono>
 #include <iomanip>
 #include <algorithm>
-#include <optional>
+#include "optional_compat.h"
 
 #include "pcap_reader.h"
 #include "packet_parser.h"

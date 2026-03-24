@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
+#include <exception>
 #include "pcap_reader.h"
 #include "packet_parser.h"
 
@@ -77,13 +78,17 @@ void printPacketSummary(const ParsedPacket& pkt, int packet_num) {
 }
 
 void printUsage(const char* program_name) {
-    std::cout << "Usage: " << program_name << " <pcap_file> [max_packets]\n";
+    std::cout << "Usage: " << program_name << " <pcap_file> [output_pcap] [max_packets]\n";
     std::cout << "\nArguments:\n";
     std::cout << "  pcap_file   - Path to a .pcap file captured by Wireshark\n";
+    std::cout << "  output_pcap - (Optional) Output file path (accepted for compatibility)\n";
     std::cout << "  max_packets - (Optional) Maximum number of packets to display\n";
+    std::cout << "                Must be a positive integer\n";
     std::cout << "\nExample:\n";
     std::cout << "  " << program_name << " capture.pcap\n";
     std::cout << "  " << program_name << " capture.pcap 10\n";
+    std::cout << "  " << program_name << " input.pcap output.pcap\n";
+    std::cout << "  " << program_name << " input.pcap output.pcap 50\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -99,9 +104,42 @@ int main(int argc, char* argv[]) {
     
     std::string filename = argv[1];
     int max_packets = -1;  // -1 means no limit
-    
+    std::string output_filename;
+    int next_arg = 2;
+
+    // Accept optional output path for CLI compatibility with dpi_engine.
     if (argc >= 3) {
-        max_packets = std::stoi(argv[2]);
+        try {
+            int parsed = std::stoi(argv[2]);
+            if (parsed > 0) {
+                max_packets = parsed;
+                next_arg = 3;
+            } else {
+                std::cout << "Warning: max_packets must be a positive integer. Ignoring value '"
+                          << argv[2] << "' and processing all packets.\n";
+                next_arg = 3;
+            }
+        } catch (const std::exception&) {
+            output_filename = argv[2];
+            next_arg = 3;
+            std::cout << "Info: Output path argument accepted: " << output_filename
+                      << " (simple mode prints analysis to console).\n";
+        }
+    }
+    
+    if (argc >= next_arg + 1) {
+        try {
+            max_packets = std::stoi(argv[next_arg]);
+            if (max_packets <= 0) {
+                std::cout << "Warning: max_packets must be a positive integer. Ignoring value '"
+                          << argv[next_arg] << "' and processing all packets.\n";
+                max_packets = -1;
+            }
+        } catch (const std::exception&) {
+            std::cout << "Warning: Invalid max_packets value '" << argv[next_arg]
+                      << "'. Expected a positive integer. Ignoring and processing all packets.\n";
+            max_packets = -1;
+        }
     }
     
     // Open the PCAP file
@@ -124,7 +162,7 @@ int main(int argc, char* argv[]) {
         if (PacketParser::parse(raw_packet, parsed_packet)) {
             printPacketSummary(parsed_packet, packet_count);
         } else {
-            std::cerr << "Warning: Failed to parse packet #" << packet_count << "\n";
+            std::cout << "Warning: Failed to parse packet #" << packet_count << "\n";
             parse_errors++;
         }
         

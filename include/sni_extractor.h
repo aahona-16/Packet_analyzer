@@ -3,7 +3,7 @@
 
 #include <string>
 #include <cstdint>
-#include <optional>
+#include "optional_compat.h"
 #include <vector>
 
 namespace DPI {

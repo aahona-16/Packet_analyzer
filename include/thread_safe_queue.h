@@ -4,7 +4,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
-#include <optional>
+#include "optional_compat.h"
 #include <chrono>
 
 namespace DPI {

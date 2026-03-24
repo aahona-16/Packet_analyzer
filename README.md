@@ -921,6 +921,41 @@ python3 generate_test_pcap.py
 # Creates test_dpi.pcap with sample traffic
 ```
 
+### Windows (PowerShell) Quick Run
+
+If you are on Windows, use these commands (do not use Linux-style trailing `\` in PowerShell):
+
+```powershell
+cd C:\Users\KIIT0001\Desktop\Packet_analyzer
+chcp 65001
+$env:Path = "C:\msys64\mingw64\bin;" + $env:Path
+```
+
+Build with MSYS2 MinGW64:
+
+```powershell
+C:\msys64\msys2_shell.cmd -defterm -mingw64 -no-start -c "cd /c/Users/KIIT0001/Desktop/Packet_analyzer; g++ -std=c++17 -pthread -O2 -I include -o dpi_engine.exe src/dpi_mt.cpp src/pcap_reader.cpp src/packet_parser.cpp src/sni_extractor.cpp src/types.cpp"
+```
+
+Run no-block and blocked demos:
+
+```powershell
+.\dpi_engine.exe test_dpi.pcap output_noblock.pcap
+.\dpi_engine.exe test_dpi.pcap output_blocked.pcap --block-app YouTube --block-domain facebook
+```
+
+Or run both in one command using the helper script:
+
+```powershell
+.\run_demo.ps1 -Build
+```
+
+Aggressive blocking profile (more dropped packets):
+
+```powershell
+.\run_demo.ps1 -Build -Aggressive
+```
+
 ---
 
 ## 11. Understanding the Output

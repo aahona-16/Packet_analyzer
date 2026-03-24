@@ -1,0 +1,36 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build DPI Engine",
+            "type": "shell",
+            "command": "C:/msys64/msys2_shell.cmd",
+            "args": [
+                "-defterm",
+                "-mingw64",
+                "-no-start",
+                "-c",
+                "cd /c/Users/KIIT0001/Desktop/Packet_analyzer; g++ -std=c++17 -pthread -O2 -I include -o dpi_engine.exe src/dpi_mt.cpp src/pcap_reader.cpp src/packet_parser.cpp src/sni_extractor.cpp src/types.cpp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Run DPI Engine",
+            "type": "shell",
+            "dependsOn": "Build DPI Engine",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "set \"PATH=C:\\msys64\\mingw64\\bin;%PATH%\" && dpi_engine.exe test_dpi.pcap output.pcap"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

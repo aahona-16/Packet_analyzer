@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <shared_mutex>
 #include <mutex>
-#include <optional>
+#include "optional_compat.h"
 #include <vector>
 #include <fstream>
 
